@@ -8,7 +8,7 @@ android {
     defaultConfig {
         applicationId "com.apvereda.digitalavatars"
         manifestPlaceholders = [
-                onesignal_app_id               : '3d0fa728-b7d7-41df-aec2-2c7983ff944f',
+                onesignal_app_id               : 'XXX',
                 // Project number pulled from dashboard, local value is ignored.
                 onesignal_google_project_number: 'REMOTE'
         ]
