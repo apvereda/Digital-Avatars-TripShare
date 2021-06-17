@@ -20,7 +20,7 @@
             android:layout_weight="1">
 
             <TextView
-                android:id="@+id/lbltrip1"
+                android:id="@+id/lblresulttrip1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
@@ -40,7 +40,7 @@
                 android:textAlignment="textStart"
                 android:textSize="12dp" />
             <TextView
-                android:id="@+id/lbltrip2"
+                android:id="@+id/lblresulttrip2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="0dp"
@@ -51,7 +51,7 @@
                 android:textSize="12dp" />
 
             <TextView
-                android:id="@+id/lbldate"
+                android:id="@+id/lblresulttrust"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="10dp"
@@ -61,14 +61,7 @@
                 android:textAlignment="textStart"
                 android:textSize="10dp" />
         </LinearLayout>
-        <ImageButton
-            android:id="@+id/btndelete"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:src="@drawable/ic_delete_black_24dp"
-            android:contentDescription="Delete"
-            android:background="@drawable/roundcorner"
-            android:layout_weight="4"/>
+
     </LinearLayout>
     <View
         android:layout_width="fill_parent"

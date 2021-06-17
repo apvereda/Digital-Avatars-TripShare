@@ -1,6 +1,5 @@
-package com.apvereda.digitalavatars.ui.friendslist;
+package com.apvereda.digitalavatars.ui.trustlist;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -8,27 +7,33 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import com.apvereda.db.Avatar;
 import com.apvereda.db.Contact;
+import com.apvereda.db.Trip;
+import com.apvereda.db.TrustOpinion;
 import com.apvereda.digitalavatars.R;
-import com.apvereda.digitalavatars.ui.tripshare.MyTripsFragment;
-import com.apvereda.digitalavatars.ui.trustlist.TrustListFragment;
+import com.apvereda.digitalavatars.ui.friendslist.AdapterForListView;
+import com.apvereda.digitalavatars.ui.tripshare.TripsAdapter;
 import com.apvereda.utils.DigitalAvatar;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
 
-public class MyFriendsFragment extends Fragment {
+public class TrustListFragment extends AppCompatActivity {
     DigitalAvatar da;
-    AdapterForListView adapter;
+    TrustItemAdapter adapter;
     ListView list;
 
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_friend_list, container, false);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.fragment_trust_list);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         /*CollapsingToolbarLayout layout = root.findViewById(R.id.friend_list_toolbar_layout);
         Toolbar toolbar = root.findViewById(R.id.friend_list_toolbar);
@@ -43,19 +48,12 @@ public class MyFriendsFragment extends Fragment {
             }
         });*/
         da = DigitalAvatar.getDA();
-        List<Contact> contacts = Contact.getAllContacts();
-        adapter = new AdapterForListView(getActivity(), contacts);
-        list = (ListView) root.findViewById(R.id.listFriends);
+        List<TrustOpinion> trips = TrustOpinion.getOpinionbyTruster(Avatar.getAvatar().getUID());
+        for(TrustOpinion t : trips) t.setTruster("me");
+        trips.addAll(TrustOpinion.getReferralOpinions());
+        adapter = new TrustItemAdapter(this, trips);
+        list = (ListView) findViewById(R.id.listTrust);
         list.setAdapter(adapter);
-
-        FloatingActionButton fabtrust = root.findViewById(R.id.fabtrust);
-        fabtrust.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(view.getContext(), TrustListFragment.class);
-                startActivity(i);
-            }
-        });
 
         /*NavController navController1 = Navigation.findNavController(getActivity(), R.id.nav_host_fragment);
         AppBarConfiguration appBarConfiguration =
@@ -63,13 +61,15 @@ public class MyFriendsFragment extends Fragment {
         NavigationUI.setupWithNavController(layout, toolbar, navController1, appBarConfiguration);*/
 
         //((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
-        return root;
     }
 
-    public void updateFriends(){
-        List<Contact> contacts = Contact.getAllContacts();
-        //Log.i("Digital Avatar", "Estos son los amigos que pongo en la lista:"+contacts);
-        adapter.setData(contacts);
+    public void updateTrips(){
+        List<TrustOpinion> trips = TrustOpinion.getOpinionbyTruster(Avatar.getAvatar().getUID());
+        for(TrustOpinion t : trips) t.setTruster("me");
+        trips.addAll(TrustOpinion.getReferralOpinions());
+        Log.i("Digital Avatar", "Estos son los trust que pongo en la lista:"+trips);
+        adapter.setData(trips);
         list.setAdapter(adapter);
     }
 }
+

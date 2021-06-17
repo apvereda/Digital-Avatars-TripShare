@@ -1,11 +1,7 @@
-package com.apvereda.digitalavatars.ui.friendslist;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+package com.apvereda.digitalavatars.ui.tripshare;
 
 import android.app.Activity;
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,54 +9,50 @@ import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.apvereda.db.Contact;
+import com.apvereda.db.Proposal;
+import com.apvereda.db.Trip;
 import com.apvereda.digitalavatars.R;
-import com.apvereda.utils.DigitalAvatar;
-import com.couchbase.lite.MutableDocument;
 
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 
-public class AdapterForListView extends BaseAdapter {
+public class ResultsAdapter extends BaseAdapter {
     Activity context;
-    List<Contact> data;
+    List<Proposal> data;
 
-    public AdapterForListView(Activity context, List<Contact> data) {
+    public ResultsAdapter(Activity context, List<Proposal> data) {
         super();
         this.context = context;
         this.data = data;
     }
 
-    public void setData(List<Contact> data) {
+    public void setData(List<Proposal> data) {
         this.data = data;
     }
+
+
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.friend_list_item, null);
+            convertView = inflater.inflate(R.layout.result_list_item, null);
         }
 
         //List<String> keys = da.getDoc("Relations").getKeys();
-        TextView lblid = (TextView) convertView.findViewById(R.id.lblid);
-        lblid.setText(data.get(position).getOneSignalID());
-        TextView lblemail = (TextView) convertView.findViewById(R.id.lblemail);
-        lblemail.setText(data.get(position).getEmail());
-        //Log.i("Digital Avatar", "Pinto a:"+data.get(position).getEmail());
-        ImageButton btndelete = convertView.findViewById(R.id.btndelete);
-        btndelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Contact.deleteContactByEmail(data.get(position).getEmail());
-                data.remove(position);
-                notifyDataSetChanged();
-                // DELETE OPINIONS
-            }
-        });
+        TextView lbltrust = (TextView) convertView.findViewById(R.id.lblresulttrust);
+        lbltrust.setText(data.get(position).getSender()+" @ "+data.get(position).getDate() + " " + data.get(position).getTime());
+        TextView lbltrip1 = (TextView) convertView.findViewById(R.id.lblresulttrip1);
+        TextView lbltrip2 = (TextView) convertView.findViewById(R.id.lblresulttrip2);
+        String text = data.get(position).getOriginLat() + ", " + data.get(position).getOriginLon() +
+                "--->" +
+                data.get(position).getDestinationLat() + ", " + data.get(position).getDestinationLon();
+        lbltrip1.setText(data.get(position).getOriginLat() + ", " + data.get(position).getOriginLon());
+        lbltrip2.setText( data.get(position).getDestinationLat() + ", " + data.get(position).getDestinationLon());
+        //Log.i("Digital Avatar", "Pinto viaje el: "+data.get(position).getDate() + " : " + data.get(position).getUID());
         /*List<RoutinePlace> places = db.getRoutinePlaces(data.get(position).getId());
         TextView lblAddress = (TextView) convertView.findViewById(R.id.lbladdress);
         lblAddress.setText(places.get(1).getPlace().getDescription());

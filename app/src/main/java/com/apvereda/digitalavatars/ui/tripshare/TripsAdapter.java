@@ -19,21 +19,6 @@ import java.util.Date;
 import java.util.List;
 
 
-/**
- * Esta obra está sujeta a la licencia Reconocimiento-CompartirIgual 4.0 Internacional de
- * Creative Commons. Para ver una copia de esta licencia,
- * visite http://creativecommons.org/licenses/by-sa/4.0/.
- *
- * CareMe, creado por Alejandro Perez Vereda el 29/7/15.
- *
- * This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 International
- * License. To view a copy of this license,
- * visit http://creativecommons.org/licenses/by-sa/4.0/.
- *
- * CareMe, created by Alejandro Perez Vereda on 29/7/15.
- *
- * Contact: aperezvereda@gmail.com
- */
 
 public class TripsAdapter extends BaseAdapter {
     Activity context;
@@ -69,7 +54,7 @@ public class TripsAdapter extends BaseAdapter {
                 data.get(position).getDestinationLat() + ", " + data.get(position).getDestinationLon();
         lbltrip1.setText(data.get(position).getOriginLat() + ", " + data.get(position).getOriginLon());
         lbltrip2.setText( data.get(position).getDestinationLat() + ", " + data.get(position).getDestinationLon());
-        Log.i("Digital Avatar", "Pinto viaje el: "+data.get(position).getDate() + " : " + data.get(position).getUID());
+        //Log.i("Digital Avatar", "Pinto viaje el: "+data.get(position).getDate() + " : " + data.get(position).getUID());
         ImageButton btndelete = convertView.findViewById(R.id.btndelete);
         btndelete.setOnClickListener(new View.OnClickListener() {
             @Override

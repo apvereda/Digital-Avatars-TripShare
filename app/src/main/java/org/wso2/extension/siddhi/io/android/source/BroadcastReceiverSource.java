@@ -132,9 +132,9 @@ public class BroadcastReceiverSource extends Source {
     private class DataUpdateReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.i("SiddhiSource", "Se ha recibido el evento");
+            //Log.i("SiddhiSource", "Se ha recibido el evento");
             Bundle bundle = intent.getExtras();
-            Log.i("SiddhiSource", "Se ha recibido el evento con las claves"+ bundle.keySet());
+            //Log.i("SiddhiSource", "Se ha recibido el evento con las claves"+ bundle.keySet());
             Map<String, Object> results = new HashMap<>();
             Long timestamp = System.currentTimeMillis() / 1000;
             results.put("timestamp", timestamp);

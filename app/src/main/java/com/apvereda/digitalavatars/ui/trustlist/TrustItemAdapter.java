@@ -1,7 +1,4 @@
-package com.apvereda.digitalavatars.ui.friendslist;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+package com.apvereda.digitalavatars.ui.trustlist;
 
 import android.app.Activity;
 import android.content.Context;
@@ -14,26 +11,27 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.apvereda.db.Contact;
+import com.apvereda.db.TrustOpinion;
 import com.apvereda.digitalavatars.R;
-import com.apvereda.utils.DigitalAvatar;
-import com.couchbase.lite.MutableDocument;
+import com.apvereda.tripshare.TripShareApp;
 
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 
-
-public class AdapterForListView extends BaseAdapter {
+public class TrustItemAdapter extends BaseAdapter {
     Activity context;
-    List<Contact> data;
+    List<TrustOpinion> data;
 
-    public AdapterForListView(Activity context, List<Contact> data) {
+    public TrustItemAdapter(Activity context, List<TrustOpinion> data) {
         super();
         this.context = context;
         this.data = data;
+
     }
 
-    public void setData(List<Contact> data) {
+    public void setData(List<TrustOpinion> data) {
         this.data = data;
     }
 
@@ -42,23 +40,31 @@ public class AdapterForListView extends BaseAdapter {
         if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.friend_list_item, null);
+            convertView = inflater.inflate(R.layout.trust_list_item, null);
         }
 
         //List<String> keys = da.getDoc("Relations").getKeys();
-        TextView lblid = (TextView) convertView.findViewById(R.id.lblid);
-        lblid.setText(data.get(position).getOneSignalID());
-        TextView lblemail = (TextView) convertView.findViewById(R.id.lblemail);
-        lblemail.setText(data.get(position).getEmail());
+        TextView lbltruster = (TextView) convertView.findViewById(R.id.lbltruster);
+        lbltruster.setText(data.get(position).getTruster());
+        TextView lbltrustee = (TextView) convertView.findViewById(R.id.lbltrustee);
+        lbltrustee.setText(Contact.getContact(data.get(position).getTrustee()).getEmail());
+        //Log.i("DigitalAvatars", "El trustee es "+ data.get(position).getTrustee());
+        //Log.i("DigitalAvatars", "y su email es "+ Contact.getContact(data.get(position).getTrustee()).getUID());
+        //Log.i("DigitalAvatars", "contactos "+ Contact.getAllContacts().get(0).getEmail()+" - "+Contact.getAllContacts().get(0).getUID());
+        TextView lbltrust = (TextView) convertView.findViewById(R.id.lbltrust);
+        if(data.get(position).isReferral()){
+            lbltrust.setText("Referral -> " + data.get(position).getTrust().projection());
+        } else {
+            lbltrust.setText("Trust -> " + data.get(position).getTrust().projection());
+        }
         //Log.i("Digital Avatar", "Pinto a:"+data.get(position).getEmail());
         ImageButton btndelete = convertView.findViewById(R.id.btndelete);
         btndelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Contact.deleteContactByEmail(data.get(position).getEmail());
+                TrustOpinion.deleteOpinion(data.get(position).getUid());
                 data.remove(position);
                 notifyDataSetChanged();
-                // DELETE OPINIONS
             }
         });
         /*List<RoutinePlace> places = db.getRoutinePlaces(data.get(position).getId());

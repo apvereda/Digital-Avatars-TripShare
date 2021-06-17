@@ -53,7 +53,7 @@ public class ProfileFragment extends Fragment {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i("Digital Avatars", "Intentando abrir el cajon");
+                //Log.i("Digital Avatars", "Intentando abrir el cajon");
                 DrawerLayout drawer = getActivity().findViewById(R.id.drawer_layout);
                 drawer.openDrawer(GravityCompat.START);
             }

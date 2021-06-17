@@ -107,6 +107,33 @@
 
         </RelativeLayout>
         <View style="@style/proifleDetailsView" />
+        <RelativeLayout style="@style/profileDetailsLayout">
+            <!--TextView
+                android:id="@+id/functionalTextView"
+                android:text="Functional"
+                android:layout_above="@+id/ratingBar"
+                style="@style/profileDetailsTextMain" /-->
+            <RatingBar
+                android:id="@+id/ratingBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10sp"
+                android:numStars="5"
+                android:stepSize="1"/>
+
+        </RelativeLayout>
+        <View style="@style/proifleDetailsView" />
+        <RelativeLayout style="@style/profileDetailsLayout">
+            <RatingBar
+                android:id="@+id/refRatingBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:numStars="5"
+                android:stepSize="1"/>
+
+        </RelativeLayout>
+        <View style="@style/proifleDetailsView" />
+
 
     </LinearLayout>
 

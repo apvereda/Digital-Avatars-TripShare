@@ -73,16 +73,17 @@ public class MessageHandler extends NotificationExtenderService {
         String fromProjectNumber = notification.payload.fromProjectNumber;
         String rawPayload = notification.payload.rawPayload;
         String customKey;
-        Log.i("SiddhiMessage", "NotificationID received: " + notificationID);
-        Log.i("SiddhiMessage", "Notification received: sender: " + title);
+        //Log.i("SiddhiMessage", "NotificationID received: " + notificationID);
+        Log.i("SiddhiMessage", "Notification received from sender: " + title);
 
         try {
         // Verificar sender que es el title del mensaje
             if (data != null){
                 //String tokenID = data.getString("tokenID");
-                String emailVerified = postHttpRequest("https://digitalavatars.appspot.com/auth", data.getString("tokenID"));
-                Log.i("SiddhiMessage", "Verificando email: "+emailVerified+" : " + title);
-                if (title.equals(emailVerified)) {
+                //String emailVerified = postHttpRequest("https://digitalavatars.appspot.com/auth", data.getString("tokenID"));
+                //Log.i("SiddhiMessage", "Verificando email: "+emailVerified+" : " + title);
+                //if (title.equals(emailVerified)) {
+                if (true) {
                     Log.i("SiddhiMessage", "Email verificado");
                     Intent i = new Intent(data.getString("appid"));
                     i.putExtra("sender", title);

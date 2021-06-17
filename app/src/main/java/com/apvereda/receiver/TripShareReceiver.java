@@ -10,6 +10,7 @@ import com.apvereda.db.Proposal;
 import com.apvereda.db.Trip;
 import com.apvereda.digitalavatars.R;
 import com.apvereda.tripshare.TripShareApp;
+import com.apvereda.uDataTypes.SBoolean;
 
 import org.wso2.siddhi.android.platform.SiddhiAppService;
 
@@ -38,15 +39,15 @@ public class TripShareReceiver extends BroadcastReceiver {
              */
             if (intent.getAction().equals(TripShareApp.EV_TRIPQUERY)) {
                 String text="Viajas? : "
-                        + intent.getStringExtra("origin") + " => "
-                        + intent.getStringExtra("destination");
+                        + intent.getStringExtra(TripShareApp.ORIGIN_LAT) + " => "
+                        + intent.getStringExtra(TripShareApp.DATE);
                 Log.i("Digital-Avatars", text);
 
 
-                Trip t = new Trip(intent.getDoubleExtra(TripShareApp.ORIGIN_LAT,0), intent.getDoubleExtra(TripShareApp.ORIGIN_LON,0),
-                        intent.getDoubleExtra(TripShareApp.DESTINATION_LAT,0), intent.getDoubleExtra(TripShareApp.DESTINATION_LON,0),
+                Trip t = new Trip(Double.parseDouble(intent.getStringExtra(TripShareApp.ORIGIN_LAT)), Double.parseDouble(intent.getStringExtra(TripShareApp.ORIGIN_LON)),
+                        Double.parseDouble(intent.getStringExtra(TripShareApp.DESTINATION_LAT)), Double.parseDouble(intent.getStringExtra(TripShareApp.DESTINATION_LON)),
                         intent.getStringExtra(TripShareApp.DATE), intent.getStringExtra(TripShareApp.TIME));
-                Trip similar = app.getSimilarTrip(t, intent.getDoubleExtra(TripShareApp.MAX_DISTANCE,0), intent.getIntExtra(TripShareApp.MAX_WAIT,0));
+                Trip similar = app.getSimilarTrip(t, Double.parseDouble(intent.getStringExtra(TripShareApp.MAX_DISTANCE)), Double.parseDouble(intent.getStringExtra(TripShareApp.MAX_WAIT)));
                 if(similar != null){
                     Intent i = new Intent(TripShareApp.EV_NEWPROPOSAL);
                     i.putExtra(TripShareApp.ORIGIN_LAT, similar.getOriginLat());
@@ -57,6 +58,9 @@ public class TripShareReceiver extends BroadcastReceiver {
                     i.putExtra(TripShareApp.TIME, similar.getTime());
                     i.putExtra(TripShareApp.RECIPIENT, intent.getStringExtra(TripShareApp.ONESIGNAL));
                     SiddhiAppService.getServiceInstance().sendBroadcast(i);
+                    Log.i("DigitalAvatars", "MANDO PROPUESTA");
+                } else{
+                    Log.i("DigitalAvatars", "No hay ninguna coincidencia de viaje similar");
                 }
             }
             /**
@@ -81,12 +85,15 @@ public class TripShareReceiver extends BroadcastReceiver {
                 Toast toast1 = Toast.makeText(context,text, Toast.LENGTH_LONG);
                 toast1.show();*/
 
+                Log.i("DigitalAvatars", "RECIBO PROPUESTA de " + intent.getStringExtra(TripShareApp.SENDER));
                 // Incluir opcion de que no tengo mas que referal, pero no functional
+                Proposal p = new Proposal(Double.parseDouble(intent.getStringExtra(TripShareApp.ORIGIN_LAT)), Double.parseDouble(intent.getStringExtra(TripShareApp.ORIGIN_LON)),
+                        Double.parseDouble(intent.getStringExtra(TripShareApp.DESTINATION_LAT)), Double.parseDouble(intent.getStringExtra(TripShareApp.DESTINATION_LON)),
+                        intent.getStringExtra(TripShareApp.DATE), intent.getStringExtra(TripShareApp.TIME), intent.getStringExtra(TripShareApp.SENDER));
                 if(app.checkSenderTrust(intent.getStringExtra(TripShareApp.SENDER))){
-                    Proposal p = new Proposal(intent.getDoubleExtra(TripShareApp.ORIGIN_LAT,0), intent.getDoubleExtra(TripShareApp.ORIGIN_LON,0),
-                            intent.getDoubleExtra(TripShareApp.DESTINATION_LAT,0), intent.getDoubleExtra(TripShareApp.DESTINATION_LON,0),
-                            intent.getStringExtra(TripShareApp.DATE), intent.getStringExtra(TripShareApp.TIME), intent.getStringExtra(TripShareApp.SENDER));
                     app.considerProposal(p);
+                } else{
+                    app.rejectProposal(p);
                 }
             }
             /**

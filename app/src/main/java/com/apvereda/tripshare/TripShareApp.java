@@ -2,11 +2,13 @@ package com.apvereda.tripshare;
 
 import android.util.Log;
 
+import com.apvereda.db.Contact;
 import com.apvereda.db.Proposal;
 import com.apvereda.db.Trip;
+import com.apvereda.db.TrustOpinion;
+import com.apvereda.uDataTypes.SBoolean;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 public class TripShareApp {
@@ -28,8 +30,8 @@ public class TripShareApp {
 
 
 
-    private List<Proposal> trustedProposals;
-    private List<Proposal> untrustedProposals;
+    private List<Proposal> trustedProposals = new ArrayList<>();
+    private List<Proposal> untrustedProposals = new ArrayList<>();
     private Trip tripRequest;
     private static TripShareApp app;
 
@@ -46,34 +48,84 @@ public class TripShareApp {
         tripRequest = t;
     }
 
-    public void setTripRequest(Trip tripRequest) {
-        this.tripRequest = tripRequest;
+    public List<Proposal> getTrustedProposals() {
+        return trustedProposals;
     }
 
-    public Trip getSimilarTrip(Trip t, double distance, int wait) {
+    public void setTrustedProposals(List<Proposal> trustedProposals) {
+        this.trustedProposals = trustedProposals;
+    }
+
+    public List<Proposal> getUntrustedProposals() {
+        return untrustedProposals;
+    }
+
+    public void setUntrustedProposals(List<Proposal> untrustedProposals) {
+        this.untrustedProposals = untrustedProposals;
+    }
+
+    public void setTripRequest(Trip tripRequest) {
+        this.tripRequest = tripRequest;
+        trustedProposals = new ArrayList<>();
+        untrustedProposals = new ArrayList<>();
+    }
+
+    public Trip getSimilarTrip(Trip t, double distance, double wait) {
         List<Trip> candidates = Trip.getTripbyDate(t.getDate());
-        for (Trip trip : candidates){
+        for (int i=0; i< candidates.size(); i++){
+            Trip trip = candidates.get(i);
             double distanceOrigin = distance(t.getOriginLat(), trip.getOriginLat(), t.getOriginLon(), trip.getOriginLon(),0,0);
             double distanceDestination = distance(t.getDestinationLat(), trip.getDestinationLat(), t.getDestinationLon(), trip.getDestinationLon(),0,0);
             int hour1 = Integer.parseInt(t.getTime().split(":")[0]);
             int minutes1 = Integer.parseInt(t.getTime().split(":")[1]);
             int hour2 = Integer.parseInt(trip.getTime().split(":")[0]);
             int minutes2 = Integer.parseInt(trip.getTime().split(":")[1]);
-            int timediff = (Math.abs(hour1-hour2) * 60) + (Math.abs(minutes1-minutes2));
-            if(distanceOrigin >= distance || distanceDestination >= distance || timediff >= wait){
-                candidates.remove(trip);
+            double timediff = (Math.abs(hour1-hour2) * 60) + (Math.abs(minutes1-minutes2));
+            Log.i("DigitalAvatars", "La diferencia de tiempo es " + timediff);
+            Log.i("DigitalAvatars", "La distancia es " + distanceDestination);
+            if(distanceOrigin > distance || distanceDestination > distance || timediff > wait){
+                candidates.remove(i);
             }
         }
         return (candidates.isEmpty()) ? null : candidates.get(0);
     }
 
     public boolean checkSenderTrust(String sender) {
-        return true;
+        List<TrustOpinion> direct = TrustOpinion.getDirectOpinionForTrustee(Contact.getContactByEmail(sender).getUID());
+        if(!direct.isEmpty()){
+            Log.i("DigitalAvatars", "Tengo una opinion directa sobre "+sender+" con valor "+direct.get(0).getTrust()+" y proyección "+direct.get(0).getTrust().projection());
+            return (direct.get(0).getTrust().projection() >= 0.5) ? true : false;
+        } else {
+            List<TrustOpinion> contactsFunctionalTrust = TrustOpinion.getContactsOpinionForTrustee(Contact.getContactByEmail(sender).getUID());
+            List<SBoolean> discounts = new ArrayList<>();
+            for(TrustOpinion t : contactsFunctionalTrust){
+                //Log.i("DigitalAvatars", "Tengo opiniones indirectas sobre "+sender);
+                List<TrustOpinion> aux = TrustOpinion.getReferralOpinionforTrustee(t.getTruster());
+                if(!aux.isEmpty()) {
+                    //Log.i("DigitalAvatars", "Tengo referral sobre "+t.getTruster());
+                    SBoolean s = t.getTrust().discount(aux.get(0).getTrust());
+                    discounts.add(s);
+                }
+            }
+            if(!discounts.isEmpty()){
+                SBoolean s = SBoolean.cumulativeBeliefFusion(discounts);
+                Log.i("DigitalAvatars", "Tengo opiniones indirectas sobre "+sender+" con valor "+s+" y proyección "+s.projection());
+                return (s.projection() >= 0.5) ? true : false;
+            } else {
+                Log.i("DigitalAvatars", "No hay opiniones sobre "+sender);
+                return false;
+            }
+        }
     }
 
     public void considerProposal(Proposal p) {
         trustedProposals.add(p);
         Log.i("Digital Avatars", " Recibida una propuesta válida de " + p.getSender());
+    }
+
+    public void rejectProposal(Proposal p) {
+        untrustedProposals.add(p);
+        Log.i("Digital Avatars", " Recibida una propuesta no confiable de " + p.getSender());
     }
 
     /**

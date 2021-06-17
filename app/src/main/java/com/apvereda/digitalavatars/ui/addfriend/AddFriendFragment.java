@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,10 +25,13 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.apvereda.db.Avatar;
 import com.apvereda.db.Contact;
+import com.apvereda.db.TrustOpinion;
 import com.apvereda.digitalavatars.R;
 import com.apvereda.digitalavatars.ui.home.HomeFragment;
 import com.apvereda.digitalavatars.ui.profile.ProfileViewModel;
+import com.apvereda.uDataTypes.SBoolean;
 import com.apvereda.utils.DigitalAvatar;
 import com.couchbase.lite.Dictionary;
 import com.couchbase.lite.MutableDictionary;
@@ -45,6 +49,8 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Random;
 
 public class AddFriendFragment extends Fragment {
 
@@ -63,7 +69,7 @@ public class AddFriendFragment extends Fragment {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i("Digital Avatars", "Intentando abrir el cajon");
+                //Log.i("Digital Avatars", "Intentando abrir el cajon");
                 DrawerLayout drawer = getActivity().findViewById(R.id.drawer_layout);
                 drawer.openDrawer(GravityCompat.START);
             }
@@ -88,6 +94,9 @@ public class AddFriendFragment extends Fragment {
                 TextView email = root.findViewById(R.id.friendemail);
                 //dictionary.setString("Email", email.getText().toString());
                 TextView onesignal = root.findViewById(R.id.friendonesignal);
+
+                RatingBar rating = root.findViewById(R.id.ratingBar);
+                RatingBar ratingref = root.findViewById(R.id.refRatingBar);
                 //dictionary.setString("IDOneSignal", onesignal.getText().toString());
                 //MutableDocument doc = da.getDoc("Relations");
                 //doc.setDictionary(email.getText().toString(),dictionary);
@@ -95,13 +104,44 @@ public class AddFriendFragment extends Fragment {
                 Contact c = new Contact(email.getText().toString(), name.getText().toString(),
                         "", phone.getText().toString(), onesignal.getText().toString(), "uid");
                 //Log.i("Digital Avatar", "Tengo un nuevo amigo:"+c.getEmail());
-                new Thread(new MyRunnable(c)).start();
+                SBoolean trust = SBoolean.UNCERTAIN;
+                SBoolean referral = SBoolean.UNCERTAIN;
+                switch (Math.round(rating.getRating())){
+                    case 0: trust = null;
+                        break;
+                    case 1: trust = new SBoolean(0,1,0,0.5);
+                        break;
+                    case 2: trust = new SBoolean(0,0.5,0.5,0.5);
+                        break;
+                    case 3: trust = new SBoolean(0,0,1,0.5);
+                        break;
+                    case 4: trust = new SBoolean(0.5,0,0.5,0.5);
+                        break;
+                    case 5: trust = new SBoolean(1,0,0,0.5);
+                        break;
+                }
+                switch (Math.round(ratingref.getRating())){
+                    case 0: referral = null;
+                        break;
+                    case 1: referral = new SBoolean(0,1,0,0.5);
+                        break;
+                    case 2: referral = new SBoolean(0,0.5,0.5,0.5);
+                        break;
+                    case 3: referral = new SBoolean(0,0,1,0.5);
+                        break;
+                    case 4: referral = new SBoolean(0.5,0,0.5,0.5);
+                        break;
+                    case 5: referral = new SBoolean(1,0,0,0.5);
+                        break;
+                }
+                new Thread(new MyRunnable(c, trust, referral)).start();
                 Toast toast1 = Toast.makeText(getContext(),"Friend Added", Toast.LENGTH_LONG);
                 toast1.show();
                 name.setText("");
                 phone.setText("");
                 email.setText("");
                 onesignal.setText("");
+                rating.setRating(0);
                 //Log.i("Digital Avatar", "Estos son mis amigos:"+doc.getKeys());
             }
         });
@@ -142,14 +182,39 @@ public class AddFriendFragment extends Fragment {
 
     private class MyRunnable implements Runnable {
         Contact c;
+        SBoolean trust, referral;
 
-        public MyRunnable(Contact c){ this.c = c; }
+        public MyRunnable(Contact c, SBoolean trust, SBoolean referral){ this.c = c; this.trust=trust; this.referral=referral;}
         @Override
         public void run() {
+            List<Contact> l = Contact.getAllContacts();
             String uid = postHttpRequest("https://digitalavatars.appspot.com/email2uid", c.getEmail());
             c.setUID(uid);
             Contact.createContact(c);
-            Log.i("Digital Avatar", "Tengo un nuevo amigo:"+c.getEmail());
+            Random r = new Random();
+            r.nextInt(l.size());
+            r.nextInt(l.size());
+            if(referral!=null) {
+                TrustOpinion refopinion = new TrustOpinion(Avatar.getAvatar().getUID(), uid, "TripShareApp", referral, "id", true);
+                TrustOpinion.createOpinion(refopinion);
+            }
+            if(trust!=null) {
+                TrustOpinion opinion = new TrustOpinion(Avatar.getAvatar().getUID(), uid, "TripShareApp", trust, "id", false);
+                TrustOpinion.createOpinion(opinion);
+                // Creamos una opinion al azar
+                if(!l.isEmpty()) {
+                    opinion.setTruster(l.get(r.nextInt(l.size())).getUID());
+                    TrustOpinion.createOpinion(opinion);
+                }
+            } else {
+                //si no marco una functional trust, entonces solo creo un aleatoria incierta
+                if(!l.isEmpty()) {
+                    trust = SBoolean.UNCERTAIN;
+                    TrustOpinion opinion = new TrustOpinion(l.get(r.nextInt(l.size())).getUID(), uid, "TripShareApp", trust, "id", false);
+                    TrustOpinion.createOpinion(opinion);
+                }
+            }
+            Log.i("Digital Avatar", "Tengo un nuevo amigo:"+c.getEmail() + " con confianza en el " + trust.projection() + " y referral " + referral.projection());
         }
     }
 }

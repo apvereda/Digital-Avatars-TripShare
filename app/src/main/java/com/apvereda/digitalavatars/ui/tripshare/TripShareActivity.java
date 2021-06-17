@@ -27,6 +27,7 @@ public class TripShareActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        TripShareApp.getApp(null);
         FloatingActionButton fab = findViewById(R.id.fabtrip);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -39,21 +40,23 @@ public class TripShareActivity extends AppCompatActivity {
                 TextView time = findViewById(R.id.timetxt);
                 TextView maxdistance = findViewById(R.id.distancetxt);
                 TextView wait = findViewById(R.id.waittxt);
-                Intent i = new Intent(TripShareApp.EV_NEWTRIP);
-                i.putExtra(TripShareApp.ORIGIN_LAT, originlat.getText().toString());
-                i.putExtra(TripShareApp.ORIGIN_LON, originlon.getText().toString());
-                i.putExtra(TripShareApp.DESTINATION_LAT, destinationlat.getText().toString());
-                i.putExtra(TripShareApp.DESTINATION_LON, destinationlon.getText().toString());
-                i.putExtra(TripShareApp.DATE, date.getText().toString());
-                i.putExtra(TripShareApp.TIME, time.getText().toString());
-                i.putExtra(TripShareApp.MAX_WAIT, wait.getText().toString());
-                i.putExtra(TripShareApp.MAX_DISTANCE, maxdistance.getText().toString());
-                i.putExtra(TripShareApp.ONESIGNAL, Avatar.getAvatar().getOneSignalID());
-                SiddhiAppService.getServiceInstance().sendBroadcast(i);
 
                 Trip t = new Trip(Double.parseDouble(originlat.getText().toString()), Double.parseDouble(originlon.getText().toString()),
                         Double.parseDouble(destinationlat.getText().toString()), Double.parseDouble(destinationlon.getText().toString()),
                         date.getText().toString(), time.getText().toString());
+
+                Intent i = new Intent(TripShareApp.EV_NEWTRIP);
+                i.putExtra(TripShareApp.ORIGIN_LAT, t.getOriginLat());
+                i.putExtra(TripShareApp.ORIGIN_LON, t.getOriginLon());
+                i.putExtra(TripShareApp.DESTINATION_LAT, t.getDestinationLat());
+                i.putExtra(TripShareApp.DESTINATION_LON, t.getDestinationLon());
+                i.putExtra(TripShareApp.DATE, date.getText().toString());
+                i.putExtra(TripShareApp.TIME, time.getText().toString());
+                i.putExtra(TripShareApp.MAX_WAIT, Double.parseDouble(wait.getText().toString()));
+                i.putExtra(TripShareApp.MAX_DISTANCE, Double.parseDouble(maxdistance.getText().toString()));
+                i.putExtra(TripShareApp.ONESIGNAL, Avatar.getAvatar().getOneSignalID());
+                SiddhiAppService.getServiceInstance().sendBroadcast(i);
+
                 TripShareApp.getApp(t).setTripRequest(t);
                 Snackbar.make(view, "Procesando viaje y avisando a sus contactos...", Snackbar.LENGTH_LONG).show();
             }
@@ -82,6 +85,15 @@ public class TripShareActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent i = new Intent(view.getContext(), MyTripsFragment.class);
+                startActivity(i);
+            }
+        });
+
+        FloatingActionButton fabresult = findViewById(R.id.fabresult);
+        fabresult.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(view.getContext(), ResultTripsFragment.class);
                 startActivity(i);
             }
         });

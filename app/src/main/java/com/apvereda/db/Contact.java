@@ -141,11 +141,11 @@ public class Contact {
             ResultSet rs = query.execute();
             for (Result r : rs) {
                 Dictionary result = r.getDictionary(0);
-                Log.i("Digital Avatar", "consulto este contacto "+result.getString("Email"));
+                //Log.i("Digital Avatar", "consulto este contacto "+result.getString("Email"));
                 Contact c = new Contact(result.getString("Email"),result.getString("Name"),
                         result.getString("LastName"),result.getString("Phone"),
                         result.getString("IDOneSignal"),result.getString("Photo"),result.getString("UID"));
-                Log.i("Digital Avatar", "consulto este contacto "+c.getEmail());
+                //Log.i("Digital Avatar", "consulto este contacto "+c.getEmail());
                 List<String> keys = result.getKeys();
                 keys.remove("UID"); keys.remove("Email"); keys.remove("LastName");
                 keys.remove("Name"); keys.remove("Phone"); keys.remove("IDOneSignal"); keys.remove("Photo");
@@ -174,7 +174,7 @@ public class Contact {
             ResultSet rs = query.execute();
             Dictionary result = rs.next().getDictionary(0);
             if(result != null) {
-                Log.i("Digital Avatar", "consulto este contacto "+result.getString("Email")+" he cmparado con email: "+email);
+                //Log.i("Digital Avatar", "consulto este contacto "+result.getString("Email")+" he cmparado con email: "+email);
                 c = new Contact(result.getString("Email"), result.getString("Name"),
                         result.getString("LastName"), result.getString("Phone"),
                         result.getString("IDOneSignal"), result.getString("Photo"), result.getString("UID"));
@@ -203,9 +203,10 @@ public class Contact {
 
         try {
             ResultSet rs = query.execute();
-            Result result = rs.next();
+            Dictionary result = rs.next().getDictionary(0);
             if(result != null) {
                 // USAR ESTO PARA ADDITIONAL DATA result.getKeys()
+                //Log.i("DigitalAvatars", "Estos son los valores que recojo "+ result.getString("Email")+", "+result.getString("Name")+", "+result.getString("UID"));
                 c = new Contact(result.getString("Email"), result.getString("Name"),
                         result.getString("LastName"), result.getString("Phone"),
                         result.getString("IDOneSignal"), result.getString("Photo"), result.getString("UID"));

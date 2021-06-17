@@ -114,7 +114,7 @@ public class DrawerActivity extends AppCompatActivity {
                                 toolbar.setVisibility(View.VISIBLE);
                                 break;
                         }
-                        Log.i("Digital Avatars", "Paso por aqui al cambiar de fragment: bien hecho");
+                        //Log.i("Digital Avatars", "Paso por aqui al cambiar de fragment: bien hecho");
                         ft.commit();
                         menuItem.setChecked(true);
                         drawer.closeDrawers();

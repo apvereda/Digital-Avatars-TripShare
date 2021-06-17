@@ -133,7 +133,7 @@ public class MessageSource extends Source {
         @Override
         public void onReceive(Context context, Intent intent) {
             Bundle bundle = intent.getExtras();
-            Log.i("SiddhiSource", "Se ha recibido el evento con las claves"+ bundle.keySet());
+            //Log.i("SiddhiSource", "Se ha recibido el evento con las claves"+ bundle.keySet());
             // Si body es nulo, entonces mirar parametros, si no lo es, es una notificación
             Map<String, Object> results = new HashMap<>();
             Long timestamp = System.currentTimeMillis() / 1000;

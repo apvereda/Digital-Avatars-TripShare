@@ -31,6 +31,14 @@
             android:label="@string/title_activity_trip_share"
             android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity
+            android:name=".ui.trustlist.TrustListFragment"
+            android:label="@string/title_activity_trip_share"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".ui.tripshare.ResultTripsFragment"
+            android:label="@string/title_activity_trip_share"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
             android:name=".DrawerActivity"
             android:label="@string/title_activity_drawer"
             android:screenOrientation="portrait"
