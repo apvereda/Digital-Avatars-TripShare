@@ -80,7 +80,8 @@ public class MessageHandler extends NotificationExtenderService {
         // Verificar sender que es el title del mensaje
             if (data != null){
                 //String tokenID = data.getString("tokenID");
-                //String emailVerified = postHttpRequest("https://digitalavatars.appspot.com/auth", data.getString("tokenID"));
+                // NODE.JS SERVER TO GET FIREBASE USER EMAIL FROM TOKENID
+                //String emailVerified = postHttpRequest("/auth", data.getString("tokenID"));
                 //Log.i("SiddhiMessage", "Verificando email: "+emailVerified+" : " + title);
                 //if (title.equals(emailVerified)) {
                 if (true) {

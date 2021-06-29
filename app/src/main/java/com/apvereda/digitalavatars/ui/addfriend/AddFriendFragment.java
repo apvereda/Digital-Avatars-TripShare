@@ -188,7 +188,8 @@ public class AddFriendFragment extends Fragment {
         @Override
         public void run() {
             List<Contact> l = Contact.getAllContacts();
-            String uid = postHttpRequest("https://digitalavatars.appspot.com/email2uid", c.getEmail());
+            //DEFINE NODE.JS SERVER FOR FIREBASE USER MANAGEMENT
+            String uid = postHttpRequest("/email2uid", c.getEmail());
             c.setUID(uid);
             Contact.createContact(c);
             Random r = new Random();
