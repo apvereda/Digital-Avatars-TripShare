@@ -1,0 +1,89 @@
+reset
+!new Clock('clock')
+
+!new DigitalAvatar('Bob')
+!new DigitalAvatar('Cam')
+!new DigitalAvatar('Ada')
+
+!insert(Cam,clock) into Time
+!new PersonalInfo('Cam_CamInfo')
+!Cam_CamInfo.contactDA:=Cam
+!insert(Cam,Cam_CamInfo) into Records
+!new PersonalInfo('Cam_AdaInfo')
+!Cam_AdaInfo.contactDA:=Ada
+!insert(Cam,Cam_AdaInfo) into Records
+!new PersonalInfo('Cam_BobInfo')
+!Cam_BobInfo.contactDA:=Bob
+!insert(Cam,Cam_BobInfo) into Records
+
+!insert(Bob,clock) into Time
+!new PersonalInfo('Bob_BobInfo')
+!Bob_BobInfo.contactDA:=Bob
+!insert(Bob,Bob_BobInfo) into Records
+!new PersonalInfo('Bob_AdaInfo')
+!Bob_AdaInfo.contactDA:=Ada
+!insert(Bob,Bob_AdaInfo) into Records
+!new PersonalInfo('Bob_CamInfo')
+!Bob_CamInfo.contactDA:=Cam
+!insert(Bob,Bob_CamInfo) into Records
+
+!insert(Ada,clock) into Time
+!new PersonalInfo('Ada_BobInfo')
+!Ada_BobInfo.contactDA:=Bob
+!insert(Ada,Ada_BobInfo) into Records
+!new PersonalInfo('Ada_AdaInfo')
+!Ada_AdaInfo.contactDA:=Ada
+!insert(Ada,Ada_AdaInfo) into Records
+!new PersonalInfo('Ada_CamInfo')
+!Ada_CamInfo.contactDA:=Cam
+!insert(Ada,Ada_CamInfo) into Records
+
+
+--!new TripShareApp('TripShareApp')
+!new TripShareApp('BobTSApp')
+-- !insert(TripShareApp,BobTSApp) into Deployment
+!insert(Bob,BobTSApp) into Applications
+!new TripShareApp('AdaTSApp')
+-- !insert(TripShareApp,AdaTSApp) into Deployment
+!insert(Ada,AdaTSApp) into Applications
+!new TripShareApp('CamTSApp')
+-- !insert(TripShareApp,CamTSApp) into Deployment
+!insert(Cam,CamTSApp) into Applications
+
+
+!new ReferralTrust('Bob_Ada')
+!Bob_Ada.trust := SBoolean(0.8,0.0,0.2,0.5)
+!insert(Bob,Bob_Ada) into Records
+!insert(Bob_Ada,Bob_AdaInfo) into Trustee
+!insert(Bob_Ada,Bob_BobInfo) into Truster
+!insert(Bob_Ada,BobTSApp) into Scope
+
+!new ReferralTrust('Bob_CamR')
+!Bob_CamR.trust := SBoolean(0.7,0.1,0.2,0.5)
+!insert(Bob,Bob_CamR) into Records
+!insert(Bob_CamR,Bob_CamInfo) into Trustee
+!insert(Bob_CamR,Bob_BobInfo) into Truster
+!insert(Bob_CamR,BobTSApp) into Scope
+
+
+!new FunctionalTrust('Bob_Cam')
+!Bob_Cam.trust := SBoolean(0.5,0.0,0.5,0.5)
+!insert(Bob,Bob_Cam) into Records
+!insert(Bob_Cam,Bob_CamInfo) into Trustee
+!insert(Bob_Cam,Bob_BobInfo) into Truster
+!insert(Bob_Cam,BobTSApp) into Scope
+
+!new FunctionalTrust('Ada_Cam')
+!Ada_Cam.trust := SBoolean(0.8,0.0,0.2,0.5)
+!insert(Bob,Ada_Cam) into Records
+!insert(Ada_Cam,Bob_CamInfo) into Truster
+!insert(Ada_Cam,Bob_AdaInfo) into Trustee
+!insert(Ada_Cam,BobTSApp) into Scope
+
+
+!BobTSApp.newTripRequest(1234.0,1267.5,1618774439,1,3600)
+!r:=BobTSApp.showCurrentOptions(TripRequest1)
+?r
+!BobTSApp.selectTripProposal(TripProposal1)
+check
+

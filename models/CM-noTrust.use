@@ -1,0 +1,183 @@
+model Reputation
+
+class DigitalAvatar 
+    end
+
+----------------------------------------------------
+abstract class DigitalAvatarRecord
+    attributes
+        lastModification: Integer init: Clock.allInstances->any(true).now
+        readPrivacy: PrivacyLevel init: #public
+        writePrivacy: PrivacyLevel init: #public
+    end
+
+class ContactGroup < DigitalAvatarRecord
+   end
+
+class PersonalInfo < DigitalAvatarRecord
+    attributes
+        contactDA:DigitalAvatar
+        name: String
+        phone: String
+        address: String
+        email: String
+    end
+
+abstract class Trip < DigitalAvatarRecord
+    attributes 
+        origin : Real -- They were coordinates x and y, but we could have only 1 dimension and make it easier to manage
+        destination : Real
+        tripDate : Integer
+    end
+
+class TripProposal < Trip
+    attributes
+        accepted:Boolean init:false
+    end
+
+class TripRequest < Trip
+    attributes
+        maxDistance : Real init: 20 --km
+        maxWaitingTime : Integer init: 60 --value
+end
+
+association Proposal between 
+    TripProposal [*]
+    DigitalAvatar [1] role proponent
+end
+
+association Request between 
+    TripRequest [*]
+    DigitalAvatar [1] role requestor
+end
+
+association ProposalToRequest between 
+    TripProposal [*]
+    TripRequest [0..1] 
+end 
+
+----------------------------------------------------
+-- class Application
+-- end
+
+abstract class Application
+end
+
+class TripShareApp < Application
+  operations
+    newTripProposal(tr:TripRequest):TripProposal 
+      begin
+        declare p:TripProposal;
+        -- decide here depending on the distance, time, etc.
+        -- in this version we agree with all proposals
+        p:=new TripProposal();
+        p.origin := tr.origin;
+        p.destination := tr.destination;
+        p.tripDate:=tr.tripDate;
+        insert(self.da, p) into Records;
+        insert(p, self.da) into Proposal;
+        result:=p;
+      end
+    newTripRequest(origin:Real, dest:Real, date:Integer, mxD : Real, mxT : Integer)
+      begin
+        declare r:TripRequest,p:TripProposal;
+        r:=new TripRequest();
+        r.origin := origin;
+        r.destination := dest;
+        r.tripDate:=date;
+        r.maxDistance := mxD;
+        r.maxWaitingTime := mxT;
+        insert(self.da, r) into Records;
+        insert(r, self.da) into Request;
+        for contact in self.da.records->select(d:DigitalAvatarRecord|d.oclIsTypeOf(PersonalInfo))
+                                      ->collect(d|d.oclAsType(PersonalInfo).contactDA)
+                                      ->asSet() do
+            if contact.localApp->select(a|a.oclIsKindOf(TripShareApp))->notEmpty() and -- the contact also has the same application
+               contact<>self.da then -- the contact is not me 
+                p:=(contact.localApp->select(a |a.oclIsKindOf(TripShareApp))->any(true)).oclAsType(TripShareApp).newTripProposal(r);
+                insert(p,r) into ProposalToRequest;
+            end;
+        end
+      end
+--   showCurrentOptions(tr:TripRequest):Sequence(Tuple(proponent:DigitalAvatar,proposal:TripProposal))
+--      begin
+--        result:= tr.tripProposal->iterate(tp;acc:Sequence(Tuple(proponent:DigitalAvatar,proposal:TripProposal))=Sequence{} |
+--                acc->append(Tuple{proponent=tp.proponent,proposal=tp}))
+--      end
+     showCurrentOptions(tr:TripRequest):Sequence(TripProposal)
+        begin
+          result:= tr.tripProposal->asSequence()
+        end
+    selectTripProposal(tp:TripProposal) : Boolean
+      begin
+        result:=(tp.proponent.localApp->select(a |a.oclIsKindOf(TripShareApp))->any(true)).oclAsType(TripShareApp).confirmTripProposal(tp);
+      end
+    confirmTripProposal(tp:TripProposal) : Boolean
+      begin
+        result:=true; -- in this implementation we always agree
+      end
+  
+
+  end
+
+----------------------------------------------------
+enum PrivacyLevel {private, public, granted}
+
+association ReadPrivacy between
+   DigitalAvatarRecord [*] role read
+   ContactGroup [*] role readGroups
+end
+association WritePrivacy between
+   DigitalAvatarRecord [*] role write
+   ContactGroup [*] role writeGroups
+end
+
+----------------------------------------------------
+class Clock
+    attributes
+        now : Integer init:0
+    operations
+        tick(time:Integer)
+            begin
+                self.now := self.now + time;
+            end
+    end
+----------------------------------------------------
+association ContactGroups between
+    ContactGroup [*] role group
+    PersonalInfo [*] role person
+end
+
+composition Records between
+    DigitalAvatar [1] role ownerDA
+    DigitalAvatarRecord [*] role records
+end
+
+association Time between
+    DigitalAvatar [*] role da
+    Clock [1] role clock
+end
+
+association Applications between 
+    DigitalAvatar [1] role da
+    Application [*] role localApp
+end
+
+-- aggregation Deployment between
+--     Application [1] role app
+--     LocalApplication [1..*] role localApp
+--end
+
+association MyDetails between
+    DigitalAvatar [0..1] role da
+    PersonalInfo [1] role me derive = self.records->select(oclIsTypeOf(PersonalInfo))->any(c|c.oclAsType(PersonalInfo).contactDA=self).oclAsType(PersonalInfo)
+end
+
+
+constraints
+context DigitalAvatar inv MeInMyContacts:
+    self.records->select(oclIsTypeOf(PersonalInfo))->one(c|c.oclAsType(PersonalInfo).contactDA=self)
+
+
+
+
